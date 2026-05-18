@@ -67,24 +67,37 @@ _start:
     capturar:
         push edx        ;guardar valores
         push cx         ;cx = contador
+        push esi        ;esi = indice
         mov cx,bx       ;bx guarda el tamano maximo (64)
         dec cx          ;dec = restar
+        mov esi, 0    ; esi = 0 (índice empieza en 0)
+
     .ciclo: 
         call getch      ;llama al a funcion
-        cmp al,127      ; compara al == 127? 127 = backspace en ASCII
+        cmp al,127      ; compara al != 127? 127 = backspace en ASCII
         jne .guardar    ;/VERDADERO = va a .guardar
-        call borrar     ;/FALSO = llama a la funcion borrar
+
+         ;=============Si es backspace=========================
+        cmp esi, 0          ; posicionarse en inicio
+        je .ciclo           ; si esi = 0, saltar
+        dec esi             ; retroceder índice 
+        mov byte[edx + esi], 0      ; poner 0 en caracter borrado
+        call borrar         ; borrar visualmente
+        inc cx              ; recuperar espacio en el contador
         jmp .ciclo
+
        .guardar:
-        call putchar    ;imprime el caracter
-        mov [edx],al    ;guradar la letra que esta en al en [edx]
-        cmp al,0xa      ;compara el salto de linea
-        je .salir       ;/VERDADERO = salir si son iguales
-        inc edx         ;/FALSO = inc = avanzar
-        loop .ciclo     ;repite el ciclo
+
+        call putchar             ;imprime el caracter
+        mov [edx + esi],al        ;guradar la letra que esta en al en [edx]  
+        cmp al,0xa                ;compara el salto de linea
+        je .salir                 ;/VERDADERO = salir si son iguales
+        inc esi                ;/FALSO = inc = avanzar
+        loop .ciclo             ;repite el ciclo
 
         .salir:
-        mov byte[edx],0  ;guarda un 0 en la cadena
+        mov byte[edx + esi],0  ;guarda un 0 en la cadena
+        pop esi
         pop cx
         pop edx
         ret             ;regresa el lugar donde llama la funcion
