@@ -75,6 +75,7 @@ atoi:
     mov eax, 0      ;resultado = 0
     mov ebx, 1      ;signo 1
 
+
     .saltar_espacio:
         mov cl, [edx]
         cmp cl, ' '
